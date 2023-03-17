@@ -1,6 +1,4 @@
 import React from 'react'
-import { CoinList } from '../Config/api';
-import axios from 'axios'
 import { CryptoState } from '../CryptoContext';
 import {useState,useEffect} from 'react'
 import { createTheme, LinearProgress, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, ThemeProvider } from '@material-ui/core';
@@ -25,22 +23,21 @@ export function numberWithCommas(x){
 }
 
 const CoinsTable = () => {
-  const [coins, setCoins] = useState([]);
-  const [loading, setLoading] = useState(false);
+
   const [search, setSearch] = useState([]);
   const [page, setPage] = useState(1);
   const navigate=useNavigate();
-  const { currency, symbol } = CryptoState();
+  const { currency, symbol, coins, loading, setCoins,setLoading,fetchCoins } = CryptoState();
 
 
 
-  const fetchCoins=async()=>{
-    setLoading(true);
-    const {data}=await axios.get(CoinList(currency));
-    setCoins(data);
-    setLoading(false);
-  };
-  console.log(coins);
+  // const fetchCoins=async()=>{
+  //   setLoading(true);
+  //   const {data}=await axios.get(CoinList(currency));
+  //   setCoins(data);
+  //   setLoading(false);
+  // }; taking this fn to CryptoContext
+  // console.log(coins);
 
   useEffect(() => {
     fetchCoins();
