@@ -3,9 +3,11 @@ import { useParams } from 'react-router-dom';
 import { SingleCoin } from '../Config/api';
 import { CryptoState } from '../CryptoContext';
 import axios from 'axios'
-import { LinearProgress, makeStyles, Typography } from '@material-ui/core';
+import { Button, LinearProgress, makeStyles, Typography } from '@material-ui/core';
 import CoinInfo from '../Components/CoinInfo';
 import { numberWithCommas } from "../Components/CoinsTable";
+import { db } from '../Firebase';
+import {doc, setDoc} from 'firebase/firestore'
 
 
 // export function numberWithCommas(x){
@@ -38,9 +40,6 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     [theme.breakpoints.down("md")]: {
       display: "flex",
-      justifyContent: "space-around",
-    },
-    [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
       alignItems: "center",
     },
@@ -63,11 +62,67 @@ const useStyles = makeStyles((theme) => ({
   
 }));
 
+
 const CoinPage = () => {
   const {id}=useParams();
   const [coin, setCoin] = useState();
 
-  const{currency,symbol}=CryptoState();
+  const{currency,symbol,user,watchlist,setAlert}=CryptoState();
+  
+  
+
+  const addToWatchlist=async()=>{
+    const coinRef=doc(db,'watchlist',user.uid);
+    try {
+      await setDoc(
+        coinRef,{coins:watchlist?[...watchlist,coin?.id] : [coin?.id]},
+        //if watchlist have something then add all of that else add only one i.e, current coin only
+      );
+      setAlert({
+        open:true,
+        message: `${coin.name} Added to the Watchlist`,
+        type: 'seccess',
+      })
+    } catch (error) {
+      setAlert({
+        open:true,
+        message: error.message,
+        type: 'error',
+      })
+    }
+  };
+
+  function filterWatchlist(watch) {
+    return watch !== coin?.id;
+  }
+
+  const removeFromWatchlist=async()=>{
+    
+    const coinRef=doc(db,'watchlist',user.uid);
+    try {
+      await setDoc(
+        coinRef,
+        { coins: watchlist.filter(filterWatchlist) }
+        ,{merge:'true'}//to merge it with orig. document
+      );
+        //if watchlist have something then add all of that else add only one i.e, current coin only
+      
+      setAlert({
+        open:true,
+        message: `${coin.name} Removed from the Watchlist`,
+        type: 'seccess',
+      })
+    } catch (error) {
+      setAlert({
+        open:true,
+        message: error.message,
+        type: 'error',
+      })
+    }
+  }
+
+  const inWatchlist=watchlist.includes(coin?.id);
+  // true if watchlist includes this coin else false
 
   const fetchCoin = async ()=>{
     const{data}=await axios.get(SingleCoin(id));
@@ -151,6 +206,19 @@ const CoinPage = () => {
             </Typography>
           </span>
           
+          {user &&(
+            <Button
+              variant='outlined'
+              style={{
+                width:'100%',
+                height:40,
+                backgroundColor: inWatchlist?'#ff0000':'#EEBC1D',
+              }}
+              onClick={inWatchlist?removeFromWatchlist: addToWatchlist}
+            >
+              {inWatchlist?'Remove from Watchlist':'Add to Watchlist'}
+            </Button>
+          )}
 
         </div>
 

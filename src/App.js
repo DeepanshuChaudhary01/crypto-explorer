@@ -2,8 +2,8 @@ import Home from "./Pages/Home";
 import Header from "./Components/Header.js";
 import "./App.css";
 import CoinPage from "./Pages/CoinPage";
-import { makeStyles } from "@material-ui/core";
 import CryptoContext from './CryptoContext';
+import Alert from "./Components/Alert";
 
 import {
   BrowserRouter,
@@ -11,6 +11,7 @@ import {
   Route,
   Link
 } from "react-router-dom";
+
 
 // const useStyles = makeStyles({
 //   App: {
@@ -43,8 +44,10 @@ function App() {
         <Route exact path="/coins/:id" element={<CoinPage/>}/>
       </Routes>
       </div>
+      <Alert/>
     </BrowserRouter>
     </CryptoContext>
+    
     </>
   );
 }
