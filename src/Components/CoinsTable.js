@@ -57,6 +57,7 @@ const CoinsTable = () => {
   }
 
   const handleSearch=()=>{//handleSearch an array
+    // console.log("here",coins[0]);
     return coins.filter((coin)=>(
       coin.name.toLowerCase().includes(search)||coin.symbol.toLowerCase().includes(search)
     )
